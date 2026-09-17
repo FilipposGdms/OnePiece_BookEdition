@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chapter unavailable | One Piece Book Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <div class="reader-shell">
+        <main class="chapter-content range-error">
+            <p class="eyebrow">One Piece Book Edition</p>
+            <h1>Chapter {{ requested_chapter }} is not available</h1>
+            <p>Please enter a chapter number between {{ min_chapter }} and {{ latest_chapter }}.</p>
+            <form class="chapter-picker error-picker" id="chapter-picker" aria-label="Go to chapter">
+                <label for="chapter-number">Chapter</label>
+                <input id="chapter-number" name="chapter" type="number" min="{{ min_chapter }}" max="{{ latest_chapter }}" value="{{ latest_chapter }}" required>
+                <button type="submit">Go</button>
+            </form>
+            <p class="error-links"><a href="/chapter/{{ latest_chapter }}">Go to latest chapter</a> · <a href="/chapter/1">Start from Chapter 1</a></p>
+        </main>
+    </div>
+
+    <script>
+        const picker = document.getElementById("chapter-picker");
+        const chapterInput = document.getElementById("chapter-number");
+        picker.addEventListener("submit", (event) => {
+            event.preventDefault();
+            if (!chapterInput.reportValidity()) return;
+            window.location.href = `/chapter/${Number(chapterInput.value)}`;
+        });
+    </script>
+</body>
+</html>
