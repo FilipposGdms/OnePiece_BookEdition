@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Read One Piece chapter Long Summaries in a clean book-like format.">
+    <title>Chapter {{ chapter.number }} — {{ chapter.title }} | One Piece Book Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <div class="reader-shell">
+        <nav class="chapter-nav" aria-label="Chapter navigation">
+            {% if previous_chapter %}
+                <a href="/chapter/{{ previous_chapter }}" rel="prev">← Chapter {{ previous_chapter }}</a>
+            {% else %}
+                <span class="disabled">← Previous</span>
+            {% endif %}
+
+            <form class="chapter-picker" id="chapter-picker" aria-label="Go to chapter">
+                <label for="chapter-number">Chapter</label>
+                <input id="chapter-number" name="chapter" type="number" min="{{ min_chapter }}" value="{{ chapter.number }}" required>
+                <button type="submit">Go</button>
+            </form>
+
+            {% if next_chapter %}
+                <a href="/chapter/{{ next_chapter }}" rel="next">Chapter {{ next_chapter }} →</a>
+            {% else %}
+                <span class="disabled next">Latest chapter</span>
+            {% endif %}
+        </nav>
+
+        <main class="chapter-content">
+            <p class="eyebrow">One Piece · Chapter {{ chapter.number }}</p>
+            <h1>{{ chapter.title }}</h1>
+
+            {% for paragraph in chapter.paragraphs %}
+                <p>{{ paragraph }}</p>
+            {% endfor %}
+        </main>
+
+        <nav class="chapter-nav bottom" aria-label="Bottom chapter navigation">
+            {% if previous_chapter %}
+                <a href="/chapter/{{ previous_chapter }}" rel="prev">← Chapter {{ previous_chapter }}</a>
+            {% else %}
+                <span></span>
+            {% endif %}
+            <a class="back-top" href="#">Back to top</a>
+            {% if next_chapter %}
+                <a href="/chapter/{{ next_chapter }}" rel="next">Chapter {{ next_chapter }} →</a>
+            {% else %}
+                <span></span>
+            {% endif %}
+        </nav>
+
+        <footer>
+            Long Summary text is retrieved from the
+            <a href="{{ chapter.source_url }}" target="_blank" rel="noopener noreferrer">One Piece Wiki on Fandom</a>.
+            This reader is an independent project and is not affiliated with One Piece, Shueisha, or Fandom.
+        </footer>
+    </div>
+
+    <script>
+        const picker = document.getElementById("chapter-picker");
+        picker.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const value = Number(document.getElementById("chapter-number").value);
+            if (Number.isInteger(value) && value >= {{ min_chapter }}) {
+                window.location.href = `/chapter/${value}`;
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.target.matches("input, textarea, select, button")) return;
+            {% if previous_chapter %}
+            if (event.key === "ArrowLeft") window.location.href = "/chapter/{{ previous_chapter }}";
+            {% endif %}
+            {% if next_chapter %}
+            if (event.key === "ArrowRight") window.location.href = "/chapter/{{ next_chapter }}";
+            {% endif %}
+        });
+    </script>
+</body>
+</html>
