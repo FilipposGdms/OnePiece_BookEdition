@@ -18,7 +18,7 @@
 
             <form class="chapter-picker" id="chapter-picker" aria-label="Go to chapter">
                 <label for="chapter-number">Chapter</label>
-                <input id="chapter-number" name="chapter" type="number" min="{{ min_chapter }}" value="{{ chapter.number }}" required>
+                <input id="chapter-number" name="chapter" type="number" min="{{ min_chapter }}" max="{{ latest_chapter }}" value="{{ chapter.number }}" required>
                 <button type="submit">Go</button>
             </form>
 
@@ -61,10 +61,14 @@
 
     <script>
         const picker = document.getElementById("chapter-picker");
+        const chapterInput = document.getElementById("chapter-number");
+
         picker.addEventListener("submit", (event) => {
             event.preventDefault();
-            const value = Number(document.getElementById("chapter-number").value);
-            if (Number.isInteger(value) && value >= {{ min_chapter }}) {
+            if (!chapterInput.reportValidity()) return;
+
+            const value = Number(chapterInput.value);
+            if (Number.isInteger(value) && value >= {{ min_chapter }} && value <= {{ latest_chapter }}) {
                 window.location.href = `/chapter/${value}`;
             }
         });
