@@ -1,23 +1,45 @@
 :root {
-    color-scheme: light dark;
     font-family: Georgia, "Times New Roman", serif;
-    --page: #efe6d0;
-    --paper: #fffaf0;
-    --ink: #252015;
-    --muted: #756b59;
-    --border: #d6c7a6;
-    --accent: #8f251f;
+    --page: #071522;
+    --paper: #0b2b46;
+    --ink: #f4f7fb;
+    --muted: #b8c6d6;
+    --border: rgba(190, 214, 236, 0.28);
+    --accent: #f2c36b;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
 body {
     margin: 0;
     min-height: 100vh;
     color: var(--ink);
-    background:
-        radial-gradient(circle at 15% 10%, rgba(255,255,255,.7), transparent 30%),
-        linear-gradient(180deg, #e8dcc0, var(--page));
+    background: var(--page);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("/static/one_piece_flat_design_android_wallpaper_by_yvanweb_ddv5cfv-fullview.jpg");
+    background-size: auto 100%;
+    background-position: center top;
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    z-index: -2;
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 18, 31, 0.20);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .reader-shell {
@@ -33,6 +55,7 @@ body {
     gap: 16px;
     font: 0.95rem/1.4 system-ui, sans-serif;
 }
+
 .chapter-nav > :last-child { justify-self: end; }
 .chapter-nav a { color: var(--ink); text-decoration: none; }
 .chapter-nav a:hover { color: var(--accent); text-decoration: underline; }
@@ -45,14 +68,14 @@ body {
     padding: 7px 9px;
     border: 1px solid var(--border);
     border-radius: 5px;
-    background: rgba(255,255,255,.72);
-    color: #221d14;
+    background: rgba(8, 34, 57, 0.76);
+    color: var(--ink);
 }
 .chapter-picker button {
     padding: 8px 13px;
-    border: 1px solid #6f1e19;
+    border: 1px solid rgba(242, 195, 107, 0.65);
     border-radius: 5px;
-    background: var(--accent);
+    background: rgba(166, 104, 34, 0.90);
     color: #fff;
     cursor: pointer;
 }
@@ -60,10 +83,11 @@ body {
 .chapter-content {
     margin: 28px 0;
     padding: clamp(30px, 7vw, 70px);
-    background: rgba(255, 250, 240, .96);
+    background: rgba(8, 39, 65, 0.72);
     border: 1px solid var(--border);
-    border-radius: 7px;
-    box-shadow: 0 12px 38px rgba(74, 53, 25, .13);
+    border-radius: 9px;
+    box-shadow: 0 14px 42px rgba(0, 0, 0, 0.30);
+    backdrop-filter: blur(3px);
 }
 
 .eyebrow {
@@ -90,6 +114,7 @@ h1 {
 
 .bottom { margin-top: 12px; }
 .back-top { justify-self: center; }
+
 footer {
     margin-top: 34px;
     color: var(--muted);
@@ -98,32 +123,19 @@ footer {
 }
 footer a { color: inherit; }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --page: #111721;
-        --paper: #1c222b;
-        --ink: #eee8dc;
-        --muted: #aca394;
-        --border: #3a414a;
-        --accent: #e2766d;
-    }
-    body {
-        background:
-            radial-gradient(circle at 15% 10%, rgba(55, 72, 91, .35), transparent 32%),
-            linear-gradient(180deg, #131b26, #0e141d);
-    }
-    .chapter-content {
-        background: rgba(28, 34, 43, .97);
-        box-shadow: 0 14px 42px rgba(0,0,0,.28);
-    }
-    .chapter-picker input { background: #252c35; color: var(--ink); }
-    .chapter-picker button { border-color: #b45750; background: #8f3029; }
-}
-
 @media (max-width: 640px) {
+    body::before {
+        background-size: cover;
+        background-position: center top;
+    }
+
     .reader-shell { width: min(100% - 20px, 820px); padding-top: 18px; }
     .chapter-nav { grid-template-columns: 1fr 1fr; }
     .chapter-picker { grid-column: 1 / -1; grid-row: 1; justify-content: center; }
-    .chapter-content { margin: 18px 0; padding: 30px 22px; }
+    .chapter-content {
+        margin: 18px 0;
+        padding: 30px 22px;
+        background: rgba(8, 39, 65, 0.76);
+    }
     .chapter-content > p:not(.eyebrow) { font-size: 1.08rem; line-height: 1.82; }
 }
