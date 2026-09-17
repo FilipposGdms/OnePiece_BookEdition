@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 import time
 from dataclasses import dataclass
 
@@ -14,6 +15,7 @@ MIN_CHAPTER = 1
 MAX_REASONABLE_CHAPTER = 5000
 CACHE_TTL_SECONDS = 60 * 60
 EXISTENCE_CACHE_TTL_SECONDS = 15 * 60
+LATEST_CHAPTER_CACHE_TTL_SECONDS = 60 * 60
 REQUEST_TIMEOUT_SECONDS = 20.0
 USER_AGENT = "OnePieceBookEdition/1.0 (personal reader; chapter summaries from One Piece Wiki)"
 
@@ -36,6 +38,7 @@ class Chapter:
 
 _chapter_cache: dict[int, tuple[float, Chapter]] = {}
 _existence_cache: dict[int, tuple[float, bool]] = {}
+_latest_chapter_cache: tuple[float, int] | None = None
 _cache_lock = asyncio.Lock()
 
 
@@ -52,6 +55,65 @@ def _validate_chapter_number(chapter_number: int) -> None:
 
 def _fresh(timestamp: float, ttl: int) -> bool:
     return time.monotonic() - timestamp < ttl
+
+
+async def get_latest_chapter_number() -> int:
+    """Return the highest numbered chapter page currently present on One Piece Wiki."""
+    global _latest_chapter_cache
+
+    async with _cache_lock:
+        cached = _latest_chapter_cache
+        if cached and _fresh(cached[0], LATEST_CHAPTER_CACHE_TTL_SECONDS):
+            return cached[1]
+        stale_latest = cached[1] if cached else None
+
+    params: dict[str, str] = {
+        "action": "query",
+        "list": "allpages",
+        "apprefix": "Chapter ",
+        "apnamespace": "0",
+        "aplimit": "max",
+        "format": "json",
+        "formatversion": "2",
+    }
+    latest = 0
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=REQUEST_TIMEOUT_SECONDS,
+            headers={"User-Agent": USER_AGENT},
+            follow_redirects=True,
+        ) as client:
+            while True:
+                response = await client.get(API_URL, params=params)
+                response.raise_for_status()
+                payload = response.json()
+
+                for page in payload.get("query", {}).get("allpages", []):
+                    title = str(page.get("title", ""))
+                    match = re.fullmatch(r"Chapter[ _](\d+)", title)
+                    if match:
+                        latest = max(latest, int(match.group(1)))
+
+                continuation = payload.get("continue")
+                if not isinstance(continuation, dict) or "apcontinue" not in continuation:
+                    break
+                params["apcontinue"] = str(continuation["apcontinue"])
+                params["continue"] = str(continuation.get("continue", "-||"))
+    except (httpx.HTTPError, ValueError, TypeError) as exc:
+        if stale_latest is not None:
+            return stale_latest
+        raise ChapterFetchError("Could not determine the latest chapter from One Piece Wiki.") from exc
+
+    if latest < MIN_CHAPTER:
+        if stale_latest is not None:
+            return stale_latest
+        raise ChapterFetchError("Could not determine the latest chapter from One Piece Wiki.")
+
+    async with _cache_lock:
+        _latest_chapter_cache = (time.monotonic(), latest)
+
+    return latest
 
 
 async def fetch_chapter(chapter_number: int) -> Chapter:
