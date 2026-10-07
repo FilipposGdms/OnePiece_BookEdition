@@ -1,0 +1,7 @@
+services:
+  one-piece-reader:
+    build: .
+    container_name: one-piece-reader
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
