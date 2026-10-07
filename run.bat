@@ -38,7 +38,7 @@ echo.
 echo Open: http://127.0.0.1:8000
 echo Press CTRL+C to stop the server.
 echo.
-".venv\Scripts\python.exe" -m uvicorn app.main:app --reload
+".venv\Scripts\python.exe" -m uvicorn app.main:app --reload --port 8000
 exit /b %errorlevel%
 
 :error
