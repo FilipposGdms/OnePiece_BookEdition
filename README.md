@@ -15,22 +15,45 @@ The app fetches chapters only when requested. Because One Piece is ongoing, ther
 - In-memory caching
 - Parser that stops at the end of **Long Summary**
 - FastAPI docs at `/docs`
-- One-command Windows startup
-- Docker and Render deployment configuration
+- Docker / Docker Compose support
+- Optional Windows `run.bat` startup
+- Render deployment configuration
 
-## Run locally
+## Run with Docker Compose
+
+After cloning the repository:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
+
+FastAPI docs:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+To stop the app, press `CTRL+C`. To stop and remove the container cleanly:
+
+```bash
+docker compose down
+```
+
+## Run locally without Docker
 
 ### Windows — one command
-
-After cloning the repository, run:
 
 ```bat
 run.bat
 ```
 
-The script creates `.venv` when necessary, installs/updates dependencies, and starts Uvicorn. Then open <http://127.0.0.1:8000>.
-
-Press `CTRL+C` to stop the server.
+The script creates `.venv` when necessary, installs/updates dependencies, and starts Uvicorn on port `8000`.
 
 ### Manual Python setup
 
@@ -44,7 +67,7 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
 ## API
